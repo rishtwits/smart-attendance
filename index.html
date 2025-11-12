@@ -4,23 +4,588 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart Attendance & Activity App</title>
-    <link rel="stylesheet" href="styles.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', 'Inter', sans-serif;
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            min-height: 100vh;
+            color: #2d3436;
+        }
+
+        .screen {
+            display: none;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* Login */
+        .login-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+            gap: 60px;
+        }
+
+        .login-left {
+            flex: 1;
+            max-width: 500px;
+        }
+
+        .login-left h1 {
+            font-size: 4.5em;
+            font-weight: 900;
+            color: #d63031;
+            margin-bottom: 20px;
+            line-height: 1.1;
+            letter-spacing: -2px;
+        }
+
+        .login-left p {
+            font-size: 1.3em;
+            color: #636e72;
+            margin-bottom: 40px;
+            font-weight: 500;
+        }
+
+        .login-features {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .feature {
+            display: flex;
+            gap: 15px;
+            align-items: flex-start;
+        }
+
+        .feature-icon {
+            font-size: 2.5em;
+            min-width: 50px;
+        }
+
+        .feature-text {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .feature-text h4 {
+            font-size: 1.1em;
+            color: #2d3436;
+            font-weight: 700;
+        }
+
+        .feature-text p {
+            font-size: 0.95em;
+            color: #636e72;
+            margin-bottom: 0;
+        }
+
+        .login-form {
+            background: white;
+            padding: 50px;
+            border-radius: 30px;
+            box-shadow: 0 20px 80px rgba(0, 0, 0, 0.15);
+            flex: 1;
+            max-width: 450px;
+        }
+
+        .login-form h2 {
+            font-size: 2em;
+            margin-bottom: 30px;
+            color: #2d3436;
+            font-weight: 800;
+        }
+
+        .login-form input, .login-form select {
+            width: 100%;
+            padding: 16px 20px;
+            margin-bottom: 16px;
+            border: 2px solid #dfe6e9;
+            border-radius: 12px;
+            font-size: 16px;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s;
+        }
+
+        .login-form input:focus, .login-form select:focus {
+            outline: none;
+            border-color: #d63031;
+            background: #fff5f5;
+        }
+
+        .login-form button {
+            width: 100%;
+            padding: 16px;
+            margin-top: 20px;
+            background: linear-gradient(135deg, #d63031 0%, #e84393 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .login-form button:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 15px 40px rgba(214, 48, 49, 0.3);
+        }
+
+        .hint {
+            text-align: center;
+            color: #b2bec3;
+            margin-top: 20px;
+            font-size: 13px;
+        }
+
+        /* Navbar */
+        .navbar {
+            background: white;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border-bottom: 4px solid #d63031;
+        }
+
+        .navbar h2 {
+            font-size: 1.8em;
+            color: #d63031;
+            font-weight: 800;
+        }
+
+        .navbar span {
+            color: #636e72;
+            font-weight: 600;
+        }
+
+        .navbar button {
+            padding: 12px 24px;
+            background: #ff6b9d;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: all 0.3s;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .navbar button:hover {
+            background: #ee5a6f;
+            transform: scale(1.05);
+        }
+
+        /* Dashboard */
+        .dashboard-container {
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .section-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 25px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #d63031, #e84393);
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        }
+
+        .card h3 {
+            font-size: 1.8em;
+            margin-bottom: 25px;
+            color: #2d3436;
+            font-weight: 800;
+        }
+
+        /* Hero Card */
+        .hero-card {
+            background: linear-gradient(135deg, #d63031 0%, #e84393 100%);
+            color: white;
+            grid-column: 1 / -1;
+            padding: 60px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .hero-card::before {
+            display: none;
+        }
+
+        .hero-card h2 {
+            font-size: 3em;
+            font-weight: 900;
+            margin-bottom: 15px;
+            line-height: 1.2;
+        }
+
+        .hero-card p {
+            font-size: 1.2em;
+            opacity: 0.95;
+            max-width: 400px;
+            margin-bottom: 30px;
+        }
+
+        .hero-stat {
+            font-size: 2.5em;
+            font-weight: 900;
+            min-width: 150px;
+            text-align: center;
+        }
+
+        .hero-label {
+            font-size: 0.9em;
+            opacity: 0.8;
+            font-weight: 600;
+        }
+
+        /* Schedule */
+        .schedule-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .schedule-item {
+            background: linear-gradient(135deg, #f5f5f5 0%, #efefef 100%);
+            padding: 20px;
+            border-radius: 15px;
+            border-left: 6px solid #00b894;
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .schedule-item:hover {
+            transform: translateX(8px);
+            background: linear-gradient(135deg, #efefef 0%, #e8e8e8 100%);
+        }
+
+        .schedule-item.current {
+            background: linear-gradient(135deg, #fff8e1 0%, #ffe082 100%);
+            border-left-color: #ffc107;
+            box-shadow: 0 5px 20px rgba(255, 193, 7, 0.3);
+        }
+
+        .schedule-item.free-period {
+            background: linear-gradient(135deg, #f0f4ff 0%, #e3f2fd 100%);
+            border-left-color: #2196f3;
+        }
+
+        .time {
+            font-weight: 800;
+            color: #d63031;
+            display: block;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+
+        .subject {
+            font-size: 1.05em;
+            color: #2d3436;
+            font-weight: 700;
+        }
+
+        .room {
+            color: #636e72;
+            font-size: 0.95em;
+            margin-top: 8px;
+            font-weight: 600;
+        }
+
+        /* QR Scanner */
+        .qr-scanner {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .qr-scanner input, .qr-scanner select {
+            padding: 14px;
+            background: #f5f5f5;
+            border: 2px solid #dfe6e9;
+            border-radius: 12px;
+            font-size: 16px;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s;
+        }
+
+        .qr-scanner input:focus, .qr-scanner select:focus {
+            outline: none;
+            border-color: #d63031;
+            background: white;
+        }
+
+        .qr-scanner button {
+            padding: 14px;
+            background: linear-gradient(135deg, #00b894 0%, #27ae60 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1em;
+            cursor: pointer;
+            font-weight: 700;
+            transition: all 0.3s;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .qr-scanner button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 184, 148, 0.3);
+        }
+
+        /* Activity Items */
+        .activity-item {
+            background: linear-gradient(135deg, #fff8e1 0%, #ffe082 100%);
+            padding: 20px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 15px;
+            border: 2px solid rgba(255, 193, 7, 0.3);
+        }
+
+        .activity-item:hover {
+            transform: translateX(8px);
+            box-shadow: 0 10px 25px rgba(255, 193, 7, 0.2);
+            border-color: rgba(255, 193, 7, 0.6);
+        }
+
+        .activity-title {
+            font-weight: 700;
+            color: #2d3436;
+            margin-bottom: 8px;
+            font-size: 1.05em;
+        }
+
+        .activity-desc {
+            color: #636e72;
+            font-size: 0.95em;
+            margin-bottom: 10px;
+        }
+
+        .activity-time {
+            color: #d63031;
+            font-size: 0.9em;
+            font-weight: 700;
+        }
+
+        /* Status */
+        #attendanceStatus {
+            margin-top: 20px;
+            padding: 16px;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 1em;
+        }
+
+        .success {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            color: #155724;
+            border: 2px solid #b1dfbb;
+        }
+
+        .error {
+            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+            color: #721c24;
+            border: 2px solid #f1b0b7;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, #fff8e1 0%, #ffe082 100%);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            border: 2px solid rgba(255, 193, 7, 0.3);
+        }
+
+        .stat-value {
+            font-size: 2.8em;
+            font-weight: 900;
+            color: #d63031;
+            line-height: 1;
+        }
+
+        .stat-label {
+            color: #636e72;
+            font-size: 1em;
+            margin-top: 12px;
+            font-weight: 700;
+        }
+
+        /* Tables */
+        .attendance-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .attendance-table th,
+        .attendance-table td {
+            padding: 16px;
+            text-align: left;
+            border-bottom: 2px solid #f0f0f0;
+            font-weight: 600;
+        }
+
+        .attendance-table th {
+            background: linear-gradient(135deg, #f5f5f5 0%, #efefef 100%);
+            color: #2d3436;
+            font-weight: 800;
+        }
+
+        .status-present {
+            color: #00b894;
+            font-weight: 800;
+            font-size: 1.1em;
+        }
+
+        .status-absent {
+            color: #d63031;
+            font-weight: 800;
+            font-size: 1.1em;
+        }
+
+        #qrDisplay {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        #qrDisplay canvas {
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        @media (max-width: 768px) {
+            .login-container {
+                flex-direction: column;
+                gap: 30px;
+            }
+
+            .navbar {
+                flex-wrap: wrap;
+                gap: 12px;
+            }
+
+            .dashboard-container {
+                padding: 20px;
+                gap: 20px;
+            }
+
+            .section-row {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .hero-card {
+                flex-direction: column;
+                text-align: center;
+                padding: 40px;
+            }
+
+            .hero-card h2 {
+                font-size: 2.2em;
+            }
+        }
+    </style>
 </head>
 <body>
     <!-- Login Screen -->
     <div id="loginScreen" class="screen active">
         <div class="login-container">
-            <h1>📚 Smart Attendance System</h1>
-            <h3>Punjab Higher Education Initiative</h3>
+            <div class="login-left">
+                <h1>Welcome Back! 📚</h1>
+                <p>Smart Attendance System</p>
+                <div class="login-features">
+                    <div class="feature">
+                        <div class="feature-icon">✓</div>
+                        <div class="feature-text">
+                            <h4>Quick Check-In</h4>
+                            <p>Mark attendance in seconds with QR codes</p>
+                        </div>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon">📊</div>
+                        <div class="feature-text">
+                            <h4>Track Progress</h4>
+                            <p>Monitor your attendance and productivity</p>
+                        </div>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon">🎯</div>
+                        <div class="feature-text">
+                            <h4>Smart Suggestions</h4>
+                            <p>Get personalized activity recommendations</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div class="login-form">
-                <input type="text" id="userId" placeholder="Enter User ID">
-                <input type="password" id="password" placeholder="Enter Password">
+                <h2>Sign In</h2>
+                <input type="text" id="userId" placeholder="User ID">
+                <input type="password" id="password" placeholder="Password">
                 <select id="userRole">
                     <option value="student">Student</option>
                     <option value="teacher">Teacher</option>
                 </select>
-                <button onclick="login()">Login</button>
-                <p class="hint">Demo: Use any ID/password to login</p>
+                <button onclick="login()">Sign In</button>
+                <p class="hint">Demo: Use any ID/password</p>
             </div>
         </div>
     </div>
@@ -28,85 +593,59 @@
     <!-- Student Dashboard -->
     <div id="studentDashboard" class="screen">
         <nav class="navbar">
-            <h2>Student Portal</h2>
+            <h2>👨‍🎓 Student Portal</h2>
             <span id="studentName"></span>
             <button onclick="logout()">Logout</button>
         </nav>
         
         <div class="dashboard-container">
-            <!-- Student Profile Card -->
-            <div class="card">
-                <h3 style="margin-bottom: 12px; font-size: 16px;">👤 Student Profile</h3>
-                <div id="studentProfile">
-                    <!-- Profile will be loaded here -->
-                </div>
-            </div>
-            
-            <!-- Today's Schedule -->
-            <div class="card">
-                <h3>📅 Today's Schedule</h3>
-                <div id="scheduleList" class="schedule-list"></div>
-            </div>
-
-            <!-- QR Scanner for Attendance -->
-            <div class="card">
-                <h3>📸 Mark Attendance</h3>
-                <div class="qr-scanner">
-                    <div id="scanner-container" style="display: none; position: relative; margin-bottom: 15px;">
-                        <div style="width: 100%; height: 300px; background: #000; border-radius: 8px; position: relative; overflow: hidden;">
-                            <!-- Simulated camera view -->
-                            <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(45deg, #222 25%, transparent 25%, transparent 75%, #222 75%, #222), linear-gradient(45deg, #222 25%, transparent 25%, transparent 75%, #222 75%, #222); background-size: 30px 30px; background-position: 0 0, 15px 15px; opacity: 0.3;"></div>
-                            
-                            <!-- Scanning frame -->
-                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 200px; height: 200px;">
-                                <div style="position: absolute; width: 100%; height: 100%; border: 2px solid #00ff00; border-radius: 8px;"></div>
-                                <div style="position: absolute; top: 0; left: 0; width: 30px; height: 30px; border-top: 4px solid #00ff00; border-left: 4px solid #00ff00;"></div>
-                                <div style="position: absolute; top: 0; right: 0; width: 30px; height: 30px; border-top: 4px solid #00ff00; border-right: 4px solid #00ff00;"></div>
-                                <div style="position: absolute; bottom: 0; left: 0; width: 30px; height: 30px; border-bottom: 4px solid #00ff00; border-left: 4px solid #00ff00;"></div>
-                                <div style="position: absolute; bottom: 0; right: 0; width: 30px; height: 30px; border-bottom: 4px solid #00ff00; border-right: 4px solid #00ff00;"></div>
-                                
-                                <!-- Scanning line animation -->
-                                <div class="scanning-line" style="position: absolute; width: 100%; height: 2px; background: linear-gradient(90deg, transparent, #00ff00, transparent); top: 0; animation: scan 2s linear infinite;"></div>
-                            </div>
-                            
-                            <!-- Camera status -->
-                            <div style="position: absolute; top: 10px; left: 10px; color: #00ff00; font-size: 12px; background: rgba(0,0,0,0.7); padding: 5px 10px; border-radius: 4px;">
-                                <span style="display: inline-block; width: 8px; height: 8px; background: #00ff00; border-radius: 50%; margin-right: 5px; animation: blink 1s infinite;"></span>
-                                Camera Active
-                            </div>
-                            
-                            <!-- Instructions -->
-                            <div style="position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); color: white; text-align: center; background: rgba(0,0,0,0.7); padding: 5px 15px; border-radius: 4px; font-size: 14px;">
-                                Position QR code within the frame
-                            </div>
-                        </div>
-                        
-                        <button onclick="stopQRScanner()" style="margin-top: 10px; width: 100%; background: #dc3545; color: white; border: none; padding: 10px; border-radius: 4px; cursor: pointer;">Stop Scanning</button>
+            <div class="section-row">
+                <div class="card hero-card">
+                    <div>
+                        <h2>Great! You're On Track 🚀</h2>
+                        <p>Your attendance is excellent. Keep up the momentum!</p>
                     </div>
-                    
-                    <input type="text" id="qrCodeInput" placeholder="Enter Class Code or Scan QR">
-                    <button onclick="markAttendance()" style="background: #28a745; color: white;">✓ Mark Present</button>
-                    <button onclick="startQRScanner()" style="background: #007bff; color: white;">📷 Scan QR Code</button>
+                    <div class="hero-stat">
+                        <div>87%</div>
+                        <div class="hero-label">Attendance</div>
+                    </div>
                 </div>
-                <div id="attendanceStatus"></div>
             </div>
 
-            <!-- Productivity Tracker -->
-            <div class="card">
-                <h3 style="margin-bottom: 12px; font-size: 16px;">📊 Productivity Tracker</h3>
-                <div id="productivityTracker"></div>
-            </div>
-            
-            <!-- Free Period Activities -->
-            <div class="card">
-                <h3 style="margin-bottom: 12px; font-size: 16px;">🎯 Recommended Activities</h3>
-                <div id="activitySuggestions"></div>
+            <div class="section-row">
+                <div class="card">
+                    <h3>📅 Today</h3>
+                    <div id="scheduleList" class="schedule-list"></div>
+                </div>
+
+                <div class="card">
+                    <h3>✓ Mark Present</h3>
+                    <div class="qr-scanner">
+                        <input type="text" id="qrCodeInput" placeholder="Class Code">
+                        <button onclick="markAttendance()">Mark Present</button>
+                        <button onclick="startQRScanner()" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);">Scan Code</button>
+                    </div>
+                    <div id="attendanceStatus"></div>
+                </div>
             </div>
 
-            <!-- Attendance History -->
-            <div class="card">
-                <h3>📊 Your Attendance</h3>
-                <div id="attendanceHistory"></div>
+            <div class="section-row">
+                <div class="card">
+                    <h3>🎯 Your Activities</h3>
+                    <div id="activitySuggestions"></div>
+                </div>
+
+                <div class="card">
+                    <h3>📊 Stats</h3>
+                    <div id="productivityTracker"></div>
+                </div>
+            </div>
+
+            <div class="section-row">
+                <div class="card">
+                    <h3>📈 Attendance History</h3>
+                    <div id="attendanceHistory"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -114,45 +653,204 @@
     <!-- Teacher Dashboard -->
     <div id="teacherDashboard" class="screen">
         <nav class="navbar">
-            <h2>Teacher Portal</h2>
+            <h2>👨‍🏫 Teacher Portal</h2>
             <span id="teacherName"></span>
             <button onclick="logout()">Logout</button>
         </nav>
         
         <div class="dashboard-container">
-            <!-- Generate QR for Class -->
-            <div class="card">
-                <h3>🔑 Generate Attendance QR</h3>
-                <select id="classSelect">
-                    <option value="">Select Class</option>
-                    <option value="CS101">CS101 - Computer Science</option>
-                    <option value="MATH201">MATH201 - Mathematics</option>
-                    <option value="PHY301">PHY301 - Physics</option>
-                    <option value="ENG101">ENG101 - English</option>
-                </select>
-                <button onclick="generateQR()">Generate QR Code</button>
-                <button onclick="testQRLibrary()" style="margin-left: 10px; background: #666;">Test QR Library</button>
-                <div id="qrDisplay"></div>
+            <div class="section-row">
+                <div class="card hero-card">
+                    <div>
+                        <h2>Class Management 📚</h2>
+                        <p>Generate QR codes and track student attendance</p>
+                    </div>
+                </div>
             </div>
 
-            <!-- View Attendance -->
-            <div class="card">
-                <h3>📋 Class Attendance</h3>
-                <div id="classAttendanceView"></div>
+            <div class="section-row">
+                <div class="card">
+                    <h3>🔐 Generate QR</h3>
+                    <select id="classSelect" style="margin-bottom: 15px; padding: 12px; border: 2px solid #dfe6e9; border-radius: 12px; width: 100%; font-family: 'Poppins', sans-serif;">
+                        <option value="">Select Class</option>
+                        <option value="CS101">CS101 - Computer Science</option>
+                        <option value="MATH201">MATH201 - Mathematics</option>
+                        <option value="PHY301">PHY301 - Physics</option>
+                        <option value="ENG101">ENG101 - English</option>
+                    </select>
+                    <button onclick="generateQR()" style="background: linear-gradient(135deg, #d63031 0%, #e84393 100%); color: white; border: none; padding: 12px; border-radius: 12px; cursor: pointer; font-weight: 700; width: 100%; font-family: 'Poppins', sans-serif;">Generate</button>
+                    <div id="qrDisplay"></div>
+                </div>
+
+                <div class="card">
+                    <h3>📚 Today's Classes</h3>
+                    <div id="teacherSchedule"></div>
+                </div>
             </div>
 
-            <!-- Today's Classes -->
-            <div class="card">
-                <h3>📚 Your Classes Today</h3>
-                <div id="teacherSchedule"></div>
+            <div class="section-row">
+                <div class="card">
+                    <h3>📋 Attendance</h3>
+                    <div id="classAttendanceView"></div>
+                </div>
             </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
-    <script src="app.js"></script>
+    <script>
+        const studentData = {
+            name: 'Alex Johnson',
+            id: 'STU001',
+            department: 'Computer Science',
+            semester: '3rd'
+        };
+
+        const teacherData = {
+            name: 'Prof. Smith',
+            id: 'TCH001'
+        };
+
+        const schedule = [
+            { time: '09:00 - 10:00', subject: 'Data Structures', room: 'Lab 101', current: true },
+            { time: '10:15 - 11:15', subject: 'Web Development', room: 'Room 201', current: false },
+            { time: '11:30 - 12:30', subject: 'Free Period', room: 'Library', current: false, freePeriod: true },
+            { time: '13:30 - 14:30', subject: 'Database Systems', room: 'Lab 102', current: false }
+        ];
+
+        const activities = [
+            { title: 'Coding Challenge', desc: 'Practice on CodeChef', time: '30 min' },
+            { title: 'Study Group', desc: 'Join DSA study group', time: '45 min' },
+            { title: 'Reading', desc: 'Chapter 5 on Trees', time: '20 min' }
+        ];
+
+        const attendanceHistory = [
+            { date: '2024-11-10', status: 'present' },
+            { date: '2024-11-09', status: 'present' },
+            { date: '2024-11-08', status: 'absent' },
+            { date: '2024-11-07', status: 'present' },
+            { date: '2024-11-06', status: 'present' }
+        ];
+
+        function login() {
+            const role = document.getElementById('userRole').value;
+            document.getElementById('loginScreen').classList.remove('active');
+            
+            if (role === 'student') {
+                document.getElementById('studentDashboard').classList.add('active');
+                document.getElementById('studentName').textContent = studentData.name;
+                loadStudentDashboard();
+            } else {
+                document.getElementById('teacherDashboard').classList.add('active');
+                document.getElementById('teacherName').textContent = teacherData.name;
+                loadTeacherDashboard();
+            }
+        }
+
+        function logout() {
+            document.getElementById('studentDashboard').classList.remove('active');
+            document.getElementById('teacherDashboard').classList.remove('active');
+            document.getElementById('loginScreen').classList.add('active');
+        }
+
+        function loadStudentDashboard() {
+            document.getElementById('scheduleList').innerHTML = schedule.map(s => `
+                <div class="schedule-item ${s.current ? 'current' : ''} ${s.freePeriod ? 'free-period' : ''}">
+                    <span class="time">${s.time}</span>
+                    <span class="subject">${s.subject}</span>
+                    <div class="room">📍 ${s.room}</div>
+                </div>
+            `).join('');
+
+            document.getElementById('activitySuggestions').innerHTML = activities.map(a => `
+                <div class="activity-item">
+                    <div class="activity-title">${a.title}</div>
+                    <div class="activity-desc">${a.desc}</div>
+                    <div class="activity-time">⏱️ ${a.time}</div>
+                </div>
+            `).join('');
+
+            document.getElementById('productivityTracker').innerHTML = `
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <div class="stat-value">12/15</div>
+                        <div class="stat-label">Classes Attended</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value">3</div>
+                        <div class="stat-label">Days Missed</div>
+                    </div>
+                </div>
+            `;
+
+            const present = attendanceHistory.filter(a => a.status === 'present').length;
+            document.getElementById('attendanceHistory').innerHTML = `
+                <table class="attendance-table">
+                    <tr>
+                        <th>Date</th>
+                        <th>Status</th>
+                    </tr>
+                    ${attendanceHistory.map(a => `
+                        <tr>
+                            <td style="color: #636e72;">${a.date}</td>
+                            <td class="${a.status === 'present' ? 'status-present' : 'status-absent'}">${a.status.toUpperCase()}</td>
+                        </tr>
+                    `).join('')}
+                </table>
+            `;
+        }
+
+        function loadTeacherDashboard() {
+            document.getElementById('teacherSchedule').innerHTML = schedule.map(s => `
+                <div class="schedule-item">
+                    <span class="time">${s.time}</span>
+                    <span class="subject">${s.subject}</span>
+                    <div class="room">📍 ${s.room}</div>
+                </div>
+            `).join('');
+
+            document.getElementById('classAttendanceView').innerHTML = `
+                <table class="attendance-table">
+                    <tr>
+                        <th>Student</th>
+                        <th>Status</th>
+                    </tr>
+                    <tr>
+                        <td style="color: #2d3436;">Alex Johnson</td>
+                        <td class="status-present">✓ Present</td>
+                    </tr>
+                    <tr>
+                        <td style="color: #2d3436;">Sarah Williams</td>
+                        <td class="status-present">✓ Present</td>
+                    </tr>
+                    <tr>
+                        <td style="color: #2d3436;">Mike Chen</td>
+                        <td class="status-absent">✗ Absent</td>
+                    </tr>
+                </table>
+            `;
+        }
+
+        function markAttendance() {
+            const code = document.getElementById('qrCodeInput').value;
+            if (code) {
+                document.getElementById('attendanceStatus').innerHTML = '<div class="success">✓ Marked as present!</div>';
+                setTimeout(() => { document.getElementById('attendanceStatus').innerHTML = ''; }, 3000);
+            }
+        }
+
+        function generateQR() {
+            const classCode = document.getElementById('classSelect').value;
+            if (classCode) {
+                const qrDisplay = document.getElementById('qrDisplay');
+                qrDisplay.innerHTML = '';
+                new QRCode(qrDisplay, { text: classCode, width: 200, height: 200 });
+            }
+        }
+
+        function startQRScanner() {
+            alert('QR Scanner would open here');
+        }
+    </script>
 </body>
 </html>
-
